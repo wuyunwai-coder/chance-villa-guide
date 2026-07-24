@@ -252,11 +252,9 @@ footer{text-align:center;color:var(--muted);font-size:12px;line-height:1.8;margi
 
 <script>
 const SHEET_ID="1aKPLXPdEy3QpkIst5avg1Jd5ll-37NATR9cyQQHvpFs";
-const GUIDE_API_URL="https://script.google.com/macros/s/AKfycbzs3vRK4OtqVF8eG7htZgw8Z9w74fo-r9HnNXG6NGs0H-SQaoDrxPtlXWfECaUL2XTU5g/exec";
 const FALLBACK_LOGO=document.querySelector("#logo")?.getAttribute("src")||"";
 const SHEETS=["site","navigation","stay","play","devices","guest_tools","manual","content_blocks","assets"];
-const EMBEDDED_DATA={"site":[{"key":"site_name","value":"蒔裳秝景","description":"中文旅宿名稱","editable":true},{"key":"site_name_en","value":"Chance Villa262","description":"英文名稱","editable":true},{"key":"slogan","value":"Where every season becomes a beautiful memory.","description":"品牌標語","editable":true},{"key":"intro","value":"當細雨洗淨田野，微風與暖陽輕輕落下，\n蒔裳秝景在藍天之下，靜候每一場相聚。\n\n搖曳的樹影、自在的庭院與悠緩的時光，\n為旅人打開一扇窗，讓心回到生活最舒服的模樣。","description":"品牌介紹","editable":true},{"key":"welcome_text","value":"入住期間需要的資訊，都可以在這裡找到。","description":"首頁提示文字","editable":true},{"key":"footer_text","value":"本入住指南內容依實際營運規範更新。","description":"頁尾文字","editable":true}],"navigation":[{"section_id":"stay","title":"入住資訊","icon":"🏡","description":"時間、Wi‑Fi、押金與安寧提醒","subtitle":"入住後常用","layout":"stay","sort":1,"visible":true,"show_in_menu":true,"show_in_manual":false,"notes":null},{"section_id":"play","title":"玩樂指南","icon":"🎮","description":"公共設施、租借項目與使用規範","subtitle":"點卡片查看規範","layout":"play_tabs","sort":2,"visible":true,"show_in_menu":true,"show_in_manual":false,"notes":null},{"section_id":"devices","title":"房內設備","icon":"🛏️","description":"設備位置與操作方式","subtitle":"操作指南","layout":"accordion","sort":3,"visible":true,"show_in_menu":true,"show_in_manual":false,"notes":null},{"section_id":"nearby","title":"周邊推薦","icon":"🍽️","description":"美食、便利商店與景點","subtitle":"美食、便利與景點","layout":"carousel","sort":4,"visible":false,"show_in_menu":true,"show_in_manual":false,"notes":"預設隱藏"},{"section_id":"checkout","title":"退房須知","icon":"🚪","description":"退房前需要確認的事項","subtitle":"重要提醒","layout":"checkout_alert","sort":5,"visible":true,"show_in_menu":true,"show_in_manual":false,"notes":null},{"section_id":"contact","title":"聯絡管家","icon":"☎️","description":"LINE、電話、停車與導航","subtitle":"快捷工具中心","layout":"actions","sort":6,"visible":true,"show_in_menu":true,"show_in_manual":false,"notes":null},{"section_id":"manual","title":"入住手冊","icon":"📖","description":null,"subtitle":"完整規範與訂房資訊","layout":"manual","sort":7,"visible":true,"show_in_menu":false,"show_in_manual":true,"notes":null}],"stay":[{"item_id":"checkin","type":"card","title":"入住時間","value":"15:00－17:00","icon":"🕒","badge":null,"description":null,"emphasis":"normal","sort":1,"visible":true,"ssid_rule":null,"password":null},{"item_id":"checkout","type":"card","title":"退房時間","value":"11:00 前","icon":"🚪","badge":null,"description":null,"emphasis":"important","sort":2,"visible":true,"ssid_rule":null,"password":null},{"item_id":"deposit_full","type":"card","title":"包棟押金","value":"NT$5,000","icon":"🏡","badge":null,"description":null,"emphasis":"normal","sort":3,"visible":true,"ssid_rule":null,"password":null},{"item_id":"deposit_room","type":"card","title":"單間押金","value":"NT$1,000","icon":"🛏️","badge":null,"description":null,"emphasis":"normal","sort":4,"visible":true,"ssid_rule":null,"password":null},{"item_id":"room_wifi","type":"wifi","title":"房內 Wi‑Fi","value":null,"icon":"📶","badge":"限房內使用","description":"每間客房的 Wi‑Fi 名稱皆為房號，密碼相同。","emphasis":"normal","sort":5,"visible":true,"ssid_rule":"房號","password":"039301203"},{"item_id":"public_wifi","type":"wifi","title":"公共區域 Wi‑Fi","value":null,"icon":"📶","badge":"公共區域","description":"公共區域使用另一組 Wi‑Fi，資訊後續補充。","emphasis":"normal","sort":6,"visible":false,"ssid_rule":null,"password":null}],"play":[{"play_id":"pool","category":"facility","name":"泳池","icon":"🏊","status_label":"公共設施","short_description":"4－10 月開放","sort":1,"visible":true,"default_open_block":"使用說明","notes":null},{"play_id":"lounge","category":"facility","name":"一樓交誼廳","icon":"☕","status_label":"公共設施","short_description":"早餐、下午茶與泡茶聊天","sort":2,"visible":true,"default_open_block":"使用說明","notes":null},{"play_id":"private_room","category":"facility","name":"包廂（非包棟選購）","icon":"📺","status_label":"付費預約","short_description":"遊戲娛樂、聚會放鬆","sort":3,"visible":true,"default_open_block":"基本資訊","notes":null},{"play_id":"switch","category":"rental","name":"Switch","icon":"🎮","status_label":"可租借項目","short_description":"多人遊戲與休閒娛樂","sort":4,"visible":true,"default_open_block":"借用方式","notes":null},{"play_id":"boardgame","category":"rental","name":"桌遊","icon":"🎲","status_label":"可租借項目","short_description":"多款桌遊自由選擇","sort":5,"visible":true,"default_open_block":"借用方式","notes":null},{"play_id":"float","category":"rental","name":"泳圈","icon":"🛟","status_label":"可租借項目","short_description":"泳池使用用品","sort":6,"visible":true,"default_open_block":"使用說明","notes":null},{"play_id":"kids_car","category":"rental","name":"兒童電動車","icon":"🚙","status_label":"可租借項目","short_description":"兒童戶外遊樂設備","sort":7,"visible":true,"default_open_block":"使用說明","notes":null}],"devices":[{"device_id":"tv","name":"電視","icon":"📺","short_description":"電視與影音設備操作","sort":1,"visible":false,"default_open_block":"操作說明","notes":"待補"},{"device_id":"air_conditioner","name":"冷氣","icon":"❄️","short_description":"冷氣遙控與注意事項","sort":2,"visible":false,"default_open_block":"操作說明","notes":"待補"},{"device_id":"hot_water","name":"熱水設備","icon":"🚿","short_description":"熱水使用方式","sort":3,"visible":false,"default_open_block":"操作說明","notes":"待補"},{"device_id":"hair_dryer","name":"吹風機","icon":"💨","short_description":"設備位置與使用方式","sort":4,"visible":false,"default_open_block":"位置與使用","notes":"待補"}],"guest_tools":[{"item_id":"personal_items","type":"checkout","title":"確認個人物品","content":"請檢查床邊、插座、浴室及衣櫃，特別留意手機充電器。","icon":"🧳","step_no":1,"emphasis":"normal","action_type":null,"value":null,"open_mode":null,"sort":1,"visible":true,"notes":null},{"item_id":"turn_off","type":"checkout","title":"關閉房內設備","content":"請關閉冷氣、電視、燈具及其他電器設備。","icon":"🔌","step_no":2,"emphasis":"normal","action_type":null,"value":null,"open_mode":null,"sort":2,"visible":true,"notes":null},{"item_id":"trash","type":"checkout","title":"完成垃圾分類","content":"請依旅宿現場指示整理並分類垃圾。","icon":"♻️","step_no":3,"emphasis":"normal","action_type":null,"value":null,"open_mode":null,"sort":3,"visible":true,"notes":null},{"item_id":"damage","type":"checkout","title":"確認設備與物品","content":"如有設備損壞、物品遺失或其他異常，請主動告知管家。","icon":"⚠️","step_no":4,"emphasis":"important","action_type":null,"value":null,"open_mode":null,"sort":4,"visible":true,"notes":null},{"item_id":"checkout_time","type":"checkout","title":"最晚退房時間","content":"11:00 前","icon":"🚪","step_no":5,"emphasis":"time","action_type":null,"value":null,"open_mode":null,"sort":5,"visible":true,"notes":null},{"item_id":"line_manager","type":"action","title":"LINE 聯絡","content":null,"icon":"💬","step_no":null,"emphasis":null,"action_type":"url","value":null,"open_mode":"new_tab","sort":1,"visible":false,"notes":"填入 LINE 連結後改 TRUE"},{"item_id":"phone_manager","type":"action","title":"致電管家","content":null,"icon":"📞","step_no":null,"emphasis":null,"action_type":"tel","value":null,"open_mode":"same_tab","sort":2,"visible":false,"notes":"value 填電話號碼"},{"item_id":"google_maps","type":"action","title":"地圖導航","content":null,"icon":"📍","step_no":null,"emphasis":null,"action_type":"url","value":null,"open_mode":"new_tab","sort":3,"visible":false,"notes":"填 Google Maps 連結"}],"manual":[],"content_blocks":[{"block_id":"BL001","owner_type":"play","owner_id":"lounge","section_title":"基本資訊","block_type":"info","title":"開放時間","content":"15:00－22:00","extra":"","sort":1,"visible":true,"style":"normal","media_url":"","open_by_default":false,"notes":""},{"block_id":"BL002","owner_type":"play","owner_id":"lounge","section_title":"提供設備","block_type":"bullet","title":"","content":"飲水機","extra":"","sort":1,"visible":true,"style":"normal","media_url":"","open_by_default":true,"notes":""},{"block_id":"BL003","owner_type":"play","owner_id":"lounge","section_title":"提供設備","block_type":"bullet","title":"","content":"茶包","extra":"","sort":2,"visible":true,"style":"normal","media_url":"","open_by_default":true,"notes":""},{"block_id":"BL004","owner_type":"play","owner_id":"lounge","section_title":"提供設備","block_type":"bullet","title":"","content":"微波爐","extra":"","sort":3,"visible":true,"style":"normal","media_url":"","open_by_default":true,"notes":""},{"block_id":"BL005","owner_type":"play","owner_id":"lounge","section_title":"提供設備","block_type":"bullet","title":"","content":"餐桌椅","extra":"","sort":4,"visible":true,"style":"normal","media_url":"","open_by_default":true,"notes":""},{"block_id":"BL006","owner_type":"play","owner_id":"lounge","section_title":"適合用途","block_type":"bullet","title":"","content":"享用早餐或下午茶","extra":"","sort":1,"visible":true,"style":"normal","media_url":"","open_by_default":false,"notes":""},{"block_id":"BL007","owner_type":"play","owner_id":"lounge","section_title":"適合用途","block_type":"bullet","title":"","content":"泡茶、聊天與休憩","extra":"","sort":2,"visible":true,"style":"normal","media_url":"","open_by_default":false,"notes":""},{"block_id":"BL008","owner_type":"play","owner_id":"lounge","section_title":"使用規範","block_type":"bullet","title":"","content":"本空間僅供用餐、泡茶、聊天及休憩使用。","extra":"","sort":1,"visible":true,"style":"normal","media_url":"","open_by_default":false,"notes":""},{"block_id":"BL009","owner_type":"play","owner_id":"lounge","section_title":"使用規範","block_type":"bullet","title":"","content":"不開放烹煮食物，如有加熱需求可使用微波爐。","extra":"","sort":2,"visible":true,"style":"normal","media_url":"","open_by_default":false,"notes":""},{"block_id":"BL010","owner_type":"play","owner_id":"lounge","section_title":"使用規範","block_type":"bullet","title":"","content":"請勿攜帶麻將、KTV、音響等高噪音設備。","extra":"","sort":3,"visible":true,"style":"normal","media_url":"","open_by_default":false,"notes":""},{"block_id":"BL011","owner_type":"play","owner_id":"lounge","section_title":"使用規範","block_type":"bullet","title":"","content":"使用完畢後，請協助整理桌面與垃圾，共同維護舒適環境。","extra":"","sort":4,"visible":true,"style":"normal","media_url":"","open_by_default":false,"notes":""}],"assets":[{"asset_id":"A001","target_type":"site","target_id":"site","title":"Logo","asset_type":"image","url":null,"alt_text":"蒔裳秝景 Logo","sort":1,"visible":true,"notes":"Logo 已可直接放 GitHub"},{"asset_id":"A002","target_type":"play","target_id":"pool","title":"泳池照片","asset_type":"image","url":null,"alt_text":"泳池","sort":1,"visible":false,"notes":null},{"asset_id":"A003","target_type":"play","target_id":"private_room","title":"包廂照片","asset_type":"image","url":null,"alt_text":"包廂","sort":1,"visible":false,"notes":null}]};
-const CACHE_VERSION="guide-v5-blocks-20260725";
+const CACHE_VERSION="guide-direct-sheet-v5";
 const CACHE_TTL=30*60*1000;
 
 function esc(v=""){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c]))}
@@ -280,24 +278,22 @@ function writeSheetCache(name,rows){
   try{localStorage.setItem(cacheKey(name),JSON.stringify({savedAt:Date.now(),rows}))}catch(e){}
 }
 async function fetchSheet(name){
-  const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(name)}&headers=1`;
-  const res=await fetch(url,{cache:"default"});
+  const cacheBust=Date.now();
+  const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${encodeURIComponent(name)}&headers=1&_=${cacheBust}`;
+  const res=await fetch(url,{cache:"no-store"});
   if(!res.ok)throw new Error(`${name} 讀取失敗`);
   const text=await res.text(),s=text.indexOf("{"),e=text.lastIndexOf("}");
   if(s<0||e<0)throw new Error(`${name} 格式錯誤`);
   const data=JSON.parse(text.slice(s,e+1));
   const cols=data.table.cols.map(c=>c.label||c.id);
-  const rows=data.table.rows.map(r=>{
-    const o={};cols.forEach((c,i)=>o[c]=r.c[i]?r.c[i].v:"");return o;
+  return data.table.rows.map(r=>{
+    const o={};
+    cols.forEach((c,i)=>o[c]=r.c[i]?r.c[i].v:"");
+    return o;
   });
-  writeSheetCache(name,rows);
-  return rows;
 }
 async function loadSheet(name){
-  const cached=readSheetCache(name);
-  if(cached&&Date.now()-cached.savedAt<CACHE_TTL)return cached.rows;
-  try{return await fetchSheet(name)}
-  catch(err){if(cached)return cached.rows;throw err}
+  return fetchSheet(name);
 }
 function clearOldGuideCaches(){
   try{
@@ -689,146 +685,42 @@ function convertManual(sectionRows,itemRows){
 }
 
 
-const API_CACHE_KEY="chance-villa-guide-api-v2";
-const API_CACHE_TTL=30*60*1000;
 
-function readApiCache(){
-  try{
-    const raw=localStorage.getItem(API_CACHE_KEY);
-    if(!raw)return null;
-    const saved=JSON.parse(raw);
-    return saved&&saved.payload?saved:null;
-  }catch(e){return null}
-}
 
-function writeApiCache(payload){
-  try{
-    localStorage.setItem(API_CACHE_KEY,JSON.stringify({
-      savedAt:Date.now(),
-      payload
-    }));
-  }catch(e){}
-}
 
-async function loadFromApi(){
-  const cached=readApiCache();
 
-  if(cached&&Date.now()-cached.savedAt<API_CACHE_TTL){
-    return cached.payload;
-  }
 
-  try{
-    const response=await fetch(GUIDE_API_URL,{cache:"default"});
-    if(!response.ok)throw new Error(`Apps Script API 讀取失敗：${response.status}`);
-    const payload=await response.json();
 
-    if(!payload||payload.ok!==true||!payload.data){
-      throw new Error(payload?.error||"Apps Script API 格式不正確");
-    }
-
-    writeApiCache(payload);
-    return payload;
-  }catch(error){
-    if(cached)return cached.payload;
-    throw error;
-  }
-}
-
-function normalizeApiPayload(payload){
-  const data=payload.data||{};
-
-  if(payload.schemaVersion==="v5"){
-    return {
-      siteRows:data.site||[],
-      navigationRows:data.navigation||[],
-      stayRows:data.stay||[],
-      playRows:data.play||[],
-      deviceRows:data.devices||[],
-      guestRows:data.guest_tools||[],
-      manualRows:data.manual||[],
-      blockRows:data.content_blocks||[],
-      assetRows:data.assets||[]
-    };
-  }
-
-  if(payload.schemaVersion==="v4"){
-    return {
-      siteRows:data.site||[],
-      navigationRows:data.navigation||[],
-      stayRows:data.stay||[],
-      playRows:data.play||[],
-      deviceRows:data.devices||[],
-      guestRows:data.guest_tools||[],
-      manualRows:data.manual||[],
-      blockRows:[],
-      assetRows:data.assets||[]
-    };
-  }
-
-  return {
-    siteRows:data.site_config||[],
-    navigationRows:mergeNavigation(data.menu||[],data.sections||[]),
-    stayRows:convertStay(data.stay_cards||[],data.wifi||[]),
-    playRows:convertPlay(data.play_cards||[],data.play_summary||[],data.play_details||[]),
-    deviceRows:convertDevices(data.device_cards||[],data.device_details||[]),
-    guestRows:convertGuestTools(data.checkout||[],data.actions||[]),
-    manualRows:convertManual(data.manual_sections||[],data.manual_items||[]),
-    blockRows:[],
-    assetRows:data.assets||[]
-  };
-}
-
-async function loadV5(){
-  const [siteRows,navigationRows,stayRows,playRows,deviceRows,guestRows,manualRows,blockRows,assetRows]
-    =await Promise.all(SHEETS.map(loadSheet));
-  return {siteRows,navigationRows,stayRows,playRows,deviceRows,guestRows,manualRows,blockRows,assetRows};
-}
-
-async function loadLegacy(){
-  const legacyNames=[
-    "site_config","menu","sections","stay_cards","wifi",
-    "play_cards","play_summary","play_details",
-    "device_cards","device_details","checkout","actions",
-    "manual_sections","manual_items","assets"
-  ];
-  const [
-    siteConfig,menuRows,sectionRows,stayCards,wifiRows,
-    playCards,playSummary,playDetails,
-    deviceCards,deviceDetails,checkoutRows,actionRows,
-    manualSections,manualItems,assetRows
-  ]=await Promise.all(legacyNames.map(fetchSheet));
-
-  return {
-    siteRows:siteConfig,
-    navigationRows:mergeNavigation(menuRows,sectionRows),
-    stayRows:convertStay(stayCards,wifiRows),
-    playRows:convertPlay(playCards,playSummary,playDetails),
-    deviceRows:convertDevices(deviceCards,deviceDetails),
-    guestRows:convertGuestTools(checkoutRows,actionRows),
-    manualRows:convertManual(manualSections,manualItems),
-    blockRows:[],
-    assetRows
-  };
-}
 
 async function init(){
   try{
-    const siteRows=EMBEDDED_DATA.site||[];
-    const navigationRows=EMBEDDED_DATA.navigation||[];
-    const stayRows=EMBEDDED_DATA.stay||[];
-    const playRows=EMBEDDED_DATA.play||[];
-    const deviceRows=EMBEDDED_DATA.devices||[];
-    const guestRows=EMBEDDED_DATA.guest_tools||[];
-    const manualRows=EMBEDDED_DATA.manual||[];
-    const blockRows=EMBEDDED_DATA.content_blocks||[];
+    const [
+      siteRows,
+      navigationRows,
+      stayRows,
+      playRows,
+      deviceRows,
+      guestRows,
+      manualRows,
+      blockRows,
+      assetRows
+    ]=await Promise.all(SHEETS.map(loadSheet));
 
     const cfg=cfgMap(siteRows);
     renderHero(cfg);
 
     const sections=visible(navigationRows).sort((a,b)=>num(a.sort)-num(b.sort));
     mainMenu.innerHTML=sections.filter(s=>bool(s.show_in_menu)).map(s=>`
-      <a href="#${esc(s.section_id)}"><div class="menu-left"><div class="menu-icon">${esc(s.icon||"")}</div>
-      <div><strong>${esc(s.title)}</strong><small>${esc(s.description||"")}</small></div></div><span class="arrow">›</span></a>
+      <a href="#${esc(s.section_id)}">
+        <div class="menu-left">
+          <div class="menu-icon">${esc(s.icon||"")}</div>
+          <div>
+            <strong>${esc(s.title)}</strong>
+            <small>${esc(s.description||"")}</small>
+          </div>
+        </div>
+        <span class="arrow">›</span>
+      </a>
     `).join("");
 
     let pageHtml="";
@@ -847,7 +739,13 @@ async function init(){
 
     footer.innerHTML=`${esc(cfg.site_name||"蒔裳秝景")} ${esc(cfg.site_name_en||"Chance Villa262")}<br>${esc(cfg.footer_text||"")}`;
   }catch(err){
-    console.error("內嵌資料載入失敗：",err);
+    console.error("Google Sheet 資料載入失敗：",err);
+    renderHero({
+      site_name:"蒔裳秝景",
+      site_name_en:"Chance Villa262",
+      slogan:"Where every season becomes a beautiful memory.",
+      welcome_text:"網站內容暫時無法載入，請稍後重新整理。"
+    });
   }
 }
 init();
