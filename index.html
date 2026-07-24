@@ -195,7 +195,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;line-height:1.8;margi
 const SHEET_ID="1aKPLXPdEy3QpkIst5avg1Jd5ll-37NATR9cyQQHvpFs";
 const FALLBACK_LOGO=document.querySelector("#logo")?.getAttribute("src")||"";
 const SHEETS=["site","navigation","stay","play","devices","guest_tools","manual","assets"];
-const CACHE_VERSION="guide-v4-20260724";
+const CACHE_VERSION="guide-v4-compatible-20260724";
 const CACHE_TTL=30*60*1000;
 
 function esc(v=""){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c]))}
@@ -204,8 +204,7 @@ function num(v,d=9999){const n=Number(v);return Number.isFinite(n)?n:d}
 function visible(rows){return rows.filter(r=>r.visible===""||r.visible==null||bool(r.visible))}
 function group(rows,key){return rows.reduce((a,r)=>((a[r[key]||""]??=[]).push(r),a),{})}
 function cfgMap(rows){return Object.fromEntries(rows.filter(r=>r.key).map(r=>[String(r.key),r.value??""]))}
-function lines(v=""){return String(v||"").split(/?
-/).map(x=>x.trim()).filter(Boolean)}
+function lines(v=""){return String(v||"").split(/\r?\n/).map(x=>x.trim()).filter(Boolean)}
 function cacheKey(name){return `${CACHE_VERSION}:${SHEET_ID}:${name}`}
 
 function readSheetCache(name){
@@ -418,9 +417,187 @@ function renderManual(section,rows){
   </section>`;
 }
 
+function mergeNavigation(menuRows, sectionRows){
+  const sectionsById=new Map(visible(sectionRows).map(s=>[String(s.section_id),s]));
+  const result=[];
+  visible(menuRows).forEach(m=>{
+    const s=sectionsById.get(String(m.target_section))||{};
+    result.push({
+      section_id:m.target_section||m.menu_id,
+      title:m.title||s.title,
+      icon:m.icon||s.icon,
+      description:m.description||"",
+      subtitle:s.subtitle||"",
+      layout:s.layout||"",
+      sort:m.sort||s.sort,
+      visible:m.visible,
+      show_in_menu:true,
+      show_in_manual:false,
+      notes:m.notes||s.notes||""
+    });
+  });
+  visible(sectionRows).forEach(s=>{
+    if(!result.some(r=>String(r.section_id)===String(s.section_id))){
+      result.push({
+        section_id:s.section_id,title:s.title,icon:s.icon,description:"",
+        subtitle:s.subtitle,layout:s.layout,sort:s.sort,visible:s.visible,
+        show_in_menu:false,show_in_manual:s.show_in_manual,notes:s.notes
+      });
+    }
+  });
+  return result;
+}
+
+function convertStay(stayCards,wifiRows){
+  return [
+    ...visible(stayCards).map(r=>({
+      item_id:r.card_id,type:"card",title:r.title,value:r.value,icon:r.icon,
+      badge:"",description:"",emphasis:r.emphasis,sort:r.sort,visible:r.visible,
+      ssid_rule:"",password:""
+    })),
+    ...visible(wifiRows).map(r=>({
+      item_id:r.wifi_id,type:"wifi",title:`${r.area||""} Wi‑Fi`,value:"",
+      icon:"📶",badge:r.badge,description:r.description,emphasis:"normal",
+      sort:r.sort,visible:r.visible,ssid_rule:r.ssid_rule,password:r.password
+    }))
+  ];
+}
+
+function convertPlay(cardRows,summaryRows,detailRows){
+  return visible(cardRows).map(card=>{
+    const summaries=visible(summaryRows)
+      .filter(s=>String(s.play_id)===String(card.play_id))
+      .sort((a,b)=>num(a.sort)-num(b.sort)).slice(0,4);
+    const details=visible(detailRows)
+      .filter(d=>String(d.play_id)===String(card.play_id))
+      .sort((a,b)=>num(a.sort)-num(b.sort));
+    const instructions=details
+      .filter(d=>["使用說明","租借方式"].includes(String(d.section_title)))
+      .map(d=>d.content).filter(Boolean).join("\n");
+    const rules=details
+      .filter(d=>!["使用說明","租借方式","特別提醒","待補資訊"].includes(String(d.section_title)))
+      .map(d=>d.content).filter(Boolean).join("\n");
+    const noticeRow=details.find(d=>d.alert_style&&d.alert_style!=="none");
+    const out={
+      play_id:card.play_id,category:card.category,name:card.name,icon:card.icon,
+      status_label:card.status_label,short_description:card.short_description,
+      instructions,rules,notice:noticeRow?.content||"",
+      notice_style:noticeRow?.alert_style||"none",
+      sort:card.sort,visible:card.visible,notes:card.notes||""
+    };
+    for(let i=1;i<=4;i++){
+      out[`summary${i}_label`]=summaries[i-1]?.label||"";
+      out[`summary${i}_value`]=summaries[i-1]?.value||"";
+    }
+    return out;
+  });
+}
+
+function convertDevices(cardRows,detailRows){
+  const details=visible(detailRows).sort((a,b)=>num(a.sort)-num(b.sort));
+  if(details.length){
+    return details.map((d,index)=>({
+      device_id:d.detail_id||`${d.device_id}-${index}`,
+      name:d.item_name||"設備",
+      icon:"",
+      description:d.content||"",
+      image_url:"",
+      sort:index+1,
+      visible:d.visible,
+      alert_style:d.alert_style||"none",
+      notes:d.notes||"",
+      content_type:d.content_type||"paragraph"
+    }));
+  }
+  return visible(cardRows).map(r=>({
+    device_id:r.device_id,name:r.name,icon:r.icon,
+    description:r.short_description||"",image_url:"",
+    sort:r.sort,visible:r.visible,alert_style:"none",
+    notes:r.notes||"",content_type:"paragraph"
+  }));
+}
+
+function convertGuestTools(checkoutRows,actionRows){
+  return [
+    ...visible(checkoutRows).map(r=>({
+      item_id:r.reminder_id,type:"checkout",title:r.title,content:r.content,
+      icon:r.icon,step_no:r.step_no,emphasis:r.emphasis,
+      action_type:"",value:"",open_mode:"",sort:r.sort,visible:r.visible,notes:r.notes
+    })),
+    ...visible(actionRows).map(r=>({
+      item_id:r.action_id,type:"action",title:r.title,content:"",
+      icon:r.icon,step_no:"",emphasis:"",action_type:r.action_type,
+      value:r.value,open_mode:r.open_mode,sort:r.sort,visible:r.visible,notes:r.notes
+    }))
+  ];
+}
+
+function convertManual(sectionRows,itemRows){
+  const sectionsById=new Map(visible(sectionRows).map(s=>[String(s.manual_id),s]));
+  return visible(itemRows).map(r=>{
+    const s=sectionsById.get(String(r.manual_id))||{};
+    return {
+      manual_id:r.manual_id,
+      section_title:s.title||r.manual_id,
+      section_icon:s.icon||"",
+      layout:s.layout||"accordion",
+      default_open:s.default_open,
+      group_title:r.group_title||"",
+      content_type:r.content_type||"bullet",
+      item_title:r.title||"",
+      content:r.content||"",
+      extra:r.extra||"",
+      section_sort:s.sort||999,
+      item_sort:r.sort||999,
+      visible:r.visible,
+      notes:r.notes||""
+    };
+  });
+}
+
+async function loadV4(){
+  const [siteRows,navigationRows,stayRows,playRows,deviceRows,guestRows,manualRows,assetRows]
+    =await Promise.all(SHEETS.map(loadSheet));
+  return {siteRows,navigationRows,stayRows,playRows,deviceRows,guestRows,manualRows,assetRows};
+}
+
+async function loadLegacy(){
+  const legacyNames=[
+    "site_config","menu","sections","stay_cards","wifi",
+    "play_cards","play_summary","play_details",
+    "device_cards","device_details","checkout","actions",
+    "manual_sections","manual_items","assets"
+  ];
+  const [
+    siteConfig,menuRows,sectionRows,stayCards,wifiRows,
+    playCards,playSummary,playDetails,
+    deviceCards,deviceDetails,checkoutRows,actionRows,
+    manualSections,manualItems,assetRows
+  ]=await Promise.all(legacyNames.map(fetchSheet));
+
+  return {
+    siteRows:siteConfig,
+    navigationRows:mergeNavigation(menuRows,sectionRows),
+    stayRows:convertStay(stayCards,wifiRows),
+    playRows:convertPlay(playCards,playSummary,playDetails),
+    deviceRows:convertDevices(deviceCards,deviceDetails),
+    guestRows:convertGuestTools(checkoutRows,actionRows),
+    manualRows:convertManual(manualSections,manualItems),
+    assetRows
+  };
+}
+
 async function init(){
   try{
-    const [siteRows,navigationRows,stayRows,playRows,deviceRows,guestRows,manualRows,assetRows]=await Promise.all(SHEETS.map(loadSheet));
+    let data;
+    try{
+      data=await loadV4();
+    }catch(v4Error){
+      console.warn("V4 後台尚未就緒，改讀舊版後台。",v4Error);
+      data=await loadLegacy();
+    }
+
+    const {siteRows,navigationRows,stayRows,playRows,deviceRows,guestRows,manualRows}=data;
     const cfg=cfgMap(siteRows);renderHero(cfg);
 
     const sections=visible(navigationRows).sort((a,b)=>num(a.sort)-num(b.sort));
@@ -429,24 +606,29 @@ async function init(){
       <div><strong>${esc(s.title)}</strong><small>${esc(s.description||"")}</small></div></div><span class="arrow">›</span></a>
     `).join("");
 
-    let html="";
+    let pageHtml="";
     sections.forEach(s=>{
-      if(s.section_id==="stay")html+=renderStay(s,stayRows);
-      else if(s.section_id==="play")html+=renderPlaySection(s);
-      else if(s.section_id==="devices")html+=renderDevices(s,deviceRows);
-      else if(s.section_id==="checkout")html+=renderCheckout(s,guestRows);
-      else if(s.section_id==="contact")html+=renderContact(s,guestRows);
-      else if(s.section_id==="manual")html+=renderManual(s,manualRows);
+      if(s.section_id==="stay")pageHtml+=renderStay(s,stayRows);
+      else if(s.section_id==="play")pageHtml+=renderPlaySection(s);
+      else if(s.section_id==="devices")pageHtml+=renderDevices(s,deviceRows);
+      else if(s.section_id==="checkout")pageHtml+=renderCheckout(s,guestRows);
+      else if(s.section_id==="contact")pageHtml+=renderContact(s,guestRows);
+      else if(s.section_id==="manual")pageHtml+=renderManual(s,manualRows);
     });
-    content.innerHTML=html;
+    content.innerHTML=pageHtml;
 
     const playEl=document.querySelector(".play-section");
     if(playEl)bindPlay(playEl,playRows);
 
     footer.innerHTML=`${esc(cfg.site_name||"蒔裳秝景")} ${esc(cfg.site_name_en||"Chance Villa262")}<br>${esc(cfg.footer_text||"")}`;
   }catch(err){
-    console.error(err);
-    renderHero({site_name:"蒔裳秝景",site_name_en:"Chance Villa262",slogan:"Give you a chance to change your life."});
+    console.error("網站資料載入失敗：",err);
+    renderHero({
+      site_name:"蒔裳秝景",
+      site_name_en:"Chance Villa262",
+      slogan:"Give you a chance to change your life.",
+      welcome_text:"網站內容暫時無法載入，請稍後重新整理。"
+    });
   }
 }
 init();
