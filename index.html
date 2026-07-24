@@ -515,7 +515,6 @@ function renderDevices(section,rows,blockRows){
           <span class="device-toggle">＋</span>
         </summary>
         <div class="device-content">
-          ${x.short_description?`<p>${esc(x.short_description)}</p>`:""}
           ${renderFlexibleBlocks(blockRows,"device",x.device_id,x.default_open_block||"")}
         </div>
       </details>`).join("")}
