@@ -158,16 +158,31 @@ h2{margin:0;font-size:23px}
 .device-empty{padding:0;color:var(--muted);font-size:13px}
 
 
-.block-groups{margin-top:14px}
+.block-groups{
+  margin-top:4px;
+}
+
 .block-group{
   border-top:1px solid #e8dfd3;
 }
-.block-group:first-child{border-top:0}
-.block-group details{padding:0}
+
+.block-group:first-child{
+  border-top:0;
+}
+
+.block-group details{
+  padding:0;
+}
+
 .block-group summary{
-  list-style:none;cursor:pointer;padding:14px 0;
-  display:flex;align-items:center;justify-content:space-between;
-  font-weight:800;color:#685d51
+  list-style:none;
+  cursor:pointer;
+  padding:8px 0;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  font-weight:800;
+  color:#685d51;
 }
 .block-group summary::-webkit-details-marker{display:none}
 .block-group summary:after{
