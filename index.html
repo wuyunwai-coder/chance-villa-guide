@@ -193,9 +193,10 @@ footer{text-align:center;color:var(--muted);font-size:12px;line-height:1.8;margi
 
 <script>
 const SHEET_ID="1aKPLXPdEy3QpkIst5avg1Jd5ll-37NATR9cyQQHvpFs";
+const GUIDE_API_URL="https://script.google.com/macros/s/AKfycbzs3vRK4OtqVF8eG7htZgw8Z9w74fo-r9HnNXG6NGs0H-SQaoDrxPtlXWfECaUL2XTU5g/exec";
 const FALLBACK_LOGO=document.querySelector("#logo")?.getAttribute("src")||"";
 const SHEETS=["site","navigation","stay","play","devices","guest_tools","manual","assets"];
-const CACHE_VERSION="guide-v4-compatible-20260724";
+const CACHE_VERSION="guide-api-first-20260724";
 const CACHE_TTL=30*60*1000;
 
 function esc(v=""){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c]))}
@@ -555,6 +556,80 @@ function convertManual(sectionRows,itemRows){
   });
 }
 
+
+const API_CACHE_KEY="chance-villa-guide-api-v1";
+const API_CACHE_TTL=30*60*1000;
+
+function readApiCache(){
+  try{
+    const raw=localStorage.getItem(API_CACHE_KEY);
+    if(!raw)return null;
+    const saved=JSON.parse(raw);
+    return saved&&saved.payload?saved:null;
+  }catch(e){return null}
+}
+
+function writeApiCache(payload){
+  try{
+    localStorage.setItem(API_CACHE_KEY,JSON.stringify({
+      savedAt:Date.now(),
+      payload
+    }));
+  }catch(e){}
+}
+
+async function loadFromApi(){
+  const cached=readApiCache();
+
+  if(cached&&Date.now()-cached.savedAt<API_CACHE_TTL){
+    return cached.payload;
+  }
+
+  try{
+    const response=await fetch(GUIDE_API_URL,{cache:"default"});
+    if(!response.ok)throw new Error(`Apps Script API 讀取失敗：${response.status}`);
+    const payload=await response.json();
+
+    if(!payload||payload.ok!==true||!payload.data){
+      throw new Error(payload?.error||"Apps Script API 格式不正確");
+    }
+
+    writeApiCache(payload);
+    return payload;
+  }catch(error){
+    if(cached)return cached.payload;
+    throw error;
+  }
+}
+
+function normalizeApiPayload(payload){
+  const data=payload.data||{};
+
+  if(payload.schemaVersion==="v4"){
+    return {
+      siteRows:data.site||[],
+      navigationRows:data.navigation||[],
+      stayRows:data.stay||[],
+      playRows:data.play||[],
+      deviceRows:data.devices||[],
+      guestRows:data.guest_tools||[],
+      manualRows:data.manual||[],
+      assetRows:data.assets||[]
+    };
+  }
+
+  return {
+    siteRows:data.site_config||[],
+    navigationRows:mergeNavigation(data.menu||[],data.sections||[]),
+    stayRows:convertStay(data.stay_cards||[],data.wifi||[]),
+    playRows:convertPlay(data.play_cards||[],data.play_summary||[],data.play_details||[]),
+    deviceRows:convertDevices(data.device_cards||[],data.device_details||[]),
+    guestRows:convertGuestTools(data.checkout||[],data.actions||[]),
+    manualRows:convertManual(data.manual_sections||[],data.manual_items||[]),
+    assetRows:data.assets||[]
+  };
+}
+
 async function loadV4(){
   const [siteRows,navigationRows,stayRows,playRows,deviceRows,guestRows,manualRows,assetRows]
     =await Promise.all(SHEETS.map(loadSheet));
@@ -590,20 +665,37 @@ async function loadLegacy(){
 async function init(){
   try{
     let data;
+
     try{
-      data=await loadV4();
-    }catch(v4Error){
-      console.warn("V4 後台尚未就緒，改讀舊版後台。",v4Error);
-      data=await loadLegacy();
+      const apiPayload=await loadFromApi();
+      data=normalizeApiPayload(apiPayload);
+    }catch(apiError){
+      console.warn("Apps Script API 暫時無法使用，改讀 Google Sheet。",apiError);
+
+      try{
+        data=await loadV4();
+      }catch(v4Error){
+        console.warn("V4 後台尚未就緒，改讀舊版後台。",v4Error);
+        data=await loadLegacy();
+      }
     }
 
     const {siteRows,navigationRows,stayRows,playRows,deviceRows,guestRows,manualRows}=data;
-    const cfg=cfgMap(siteRows);renderHero(cfg);
+    const cfg=cfgMap(siteRows);
+    renderHero(cfg);
 
     const sections=visible(navigationRows).sort((a,b)=>num(a.sort)-num(b.sort));
     mainMenu.innerHTML=sections.filter(s=>bool(s.show_in_menu)).map(s=>`
-      <a href="#${esc(s.section_id)}"><div class="menu-left"><div class="menu-icon">${esc(s.icon||"")}</div>
-      <div><strong>${esc(s.title)}</strong><small>${esc(s.description||"")}</small></div></div><span class="arrow">›</span></a>
+      <a href="#${esc(s.section_id)}">
+        <div class="menu-left">
+          <div class="menu-icon">${esc(s.icon||"")}</div>
+          <div>
+            <strong>${esc(s.title)}</strong>
+            <small>${esc(s.description||"")}</small>
+          </div>
+        </div>
+        <span class="arrow">›</span>
+      </a>
     `).join("");
 
     let pageHtml="";
