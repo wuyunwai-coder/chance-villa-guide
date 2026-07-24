@@ -177,7 +177,12 @@ footer{text-align:center;color:var(--muted);font-size:12px;line-height:1.8;margi
 <body>
 <main class="wrap">
 <header id="hero" class="hero">
-  <img id="logo" class="logo" alt="蒔裳秝景 Logo">
+  <img
+  id="logo"
+  class="logo"
+  src="logo.png"
+  alt="蒔裳秝景 Logo"
+>
   <h1 id="siteName">蒔裳秝景</h1>
   <div id="siteNameEn" class="en">CHANCE VILLA 262</div>
   <p id="intro" class="hero-copy"></p>
@@ -194,7 +199,6 @@ footer{text-align:center;color:var(--muted);font-size:12px;line-height:1.8;margi
 <script>
 const SHEET_ID="1aKPLXPdEy3QpkIst5avg1Jd5ll-37NATR9cyQQHvpFs";
 const GUIDE_API_URL="https://script.google.com/macros/s/AKfycbzs3vRK4OtqVF8eG7htZgw8Z9w74fo-r9HnNXG6NGs0H-SQaoDrxPtlXWfECaUL2XTU5g/exec";
-const FALLBACK_LOGO=document.querySelector("#logo")?.getAttribute("src")||"";
 const SHEETS=["site","navigation","stay","play","devices","guest_tools","manual","assets"];
 const CACHE_VERSION="guide-api-first-20260724";
 const CACHE_TTL=30*60*1000;
@@ -255,7 +259,6 @@ function renderHero(cfg){
   intro.textContent=cfg.intro||"";
   slogan.textContent=cfg.slogan||"";
   welcome.textContent=cfg.welcome_text||"";
-  logo.src=cfg.logo_url||FALLBACK_LOGO;
   if(cfg.hero_image_url){
     hero.classList.add("has-image");
     hero.style.backgroundImage=`url("${cfg.hero_image_url}")`;
