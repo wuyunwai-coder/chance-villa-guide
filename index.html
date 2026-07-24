@@ -7,51 +7,78 @@
 <title>蒔裳秝景｜數位管家</title>
 <style>
 :root{
-  --bg:#f4f0e9;--paper:#fffdf9;--text:#2f332e;--muted:#777c72;
-  --green:#4f5f4b;--green2:#7f9078;--soft:#ece6dc;--line:#e4ddd2;
-  --warning:#8e573f;--warning-bg:#fff3ea;--shadow:0 16px 42px rgba(56,52,45,.10)
+  --bg:#f5f0e7;--paper:#fffdf9;--text:#5b5146;--muted:#8a8074;
+  --green:#7b846e;--green2:#9aa28e;--soft:#f0e9de;--line:#e7ded2;
+  --warning:#9a644e;--warning-bg:#fff4eb;--shadow:0 16px 42px rgba(91,76,60,.09)
 }
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{
   margin:0;color:var(--text);
-  background:radial-gradient(circle at 15% 0%,rgba(255,255,255,.85),transparent 30%),
-  linear-gradient(180deg,#ddd7cc 0,#f4f0e9 420px);
+  background:
+    radial-gradient(circle at 12% 0%,rgba(255,255,255,.92),transparent 28%),
+    linear-gradient(180deg,#eee5d8 0,#f6f1e9 430px);
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans TC",sans-serif
 }
 .wrap{width:min(100%,880px);margin:auto;padding:18px 14px 64px}
 .hero{
-  position:relative;overflow:hidden;min-height:390px;padding:30px 24px;border-radius:32px;color:#fff;
-  background:radial-gradient(circle at 82% 18%,rgba(255,255,255,.17) 0 13%,transparent 14%),
-  linear-gradient(145deg,#465343,#71806b 58%,#98a491);box-shadow:var(--shadow)
+  position:relative;overflow:hidden;min-height:390px;padding:36px 24px 40px;border-radius:32px;
+  color:#5d5347;text-align:center;
+  background:
+    radial-gradient(circle at 12% 8%,rgba(255,255,255,.88) 0 8%,transparent 9%),
+    radial-gradient(circle at 88% 18%,rgba(222,208,189,.22) 0 13%,transparent 14%),
+    linear-gradient(155deg,#fbf7f0 0%,#f5eee4 58%,#eee4d7 100%);
+  border:1px solid rgba(150,132,109,.18);
+  box-shadow:0 16px 42px rgba(92,76,58,.10)
 }
-.hero.has-image{background-size:cover;background-position:center}
-.hero.has-image:before{content:"";position:absolute;inset:0;background:linear-gradient(145deg,rgba(54,64,52,.86),rgba(83,99,77,.58))}
-.hero:after{content:"";position:absolute;right:-85px;bottom:-105px;width:250px;height:250px;border:35px solid rgba(255,255,255,.08);border-radius:50%}
+.hero:before,.hero:after{
+  content:"";position:absolute;pointer-events:none;width:190px;height:270px;
+  background-repeat:no-repeat;background-size:contain;opacity:.18
+}
+.hero:before{
+  left:-38px;top:-36px;transform:rotate(-12deg);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 260'%3E%3Cg fill='none' stroke='%23a08d72' stroke-width='2'%3E%3Cpath d='M40 245 C55 185 50 115 115 30'/%3E%3Cpath d='M63 195 C40 174 29 151 30 124 C56 132 72 151 75 174'/%3E%3Cpath d='M79 145 C101 128 114 108 118 84 C94 91 80 108 73 129'/%3E%3Cpath d='M91 104 C73 87 64 68 65 48 C86 54 99 68 101 88'/%3E%3Cpath d='M108 61 C127 49 138 35 143 18 C125 21 113 31 104 46'/%3E%3C/g%3E%3C/svg%3E")
+}
+.hero:after{
+  right:-38px;bottom:-52px;transform:rotate(166deg);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 260'%3E%3Cg fill='none' stroke='%2387957f' stroke-width='2'%3E%3Cpath d='M40 245 C55 185 50 115 115 30'/%3E%3Cpath d='M63 195 C40 174 29 151 30 124 C56 132 72 151 75 174'/%3E%3Cpath d='M79 145 C101 128 114 108 118 84 C94 91 80 108 73 129'/%3E%3Cpath d='M91 104 C73 87 64 68 65 48 C86 54 99 68 101 88'/%3E%3C/g%3E%3C/svg%3E")
+}
 .hero>*{position:relative;z-index:1}
-.logo{width:108px;filter:brightness(0) invert(1);opacity:.96}
-.hero h1{margin:22px 0 5px;font-size:clamp(36px,9vw,56px);letter-spacing:.08em}
-.en{font-size:12px;letter-spacing:.22em;opacity:.78}
-.hero-copy{max-width:620px;margin:22px 0 0;line-height:1.9;font-size:14px;white-space:pre-line;opacity:.95}
-.slogan{margin-top:18px;font:italic 15px Georgia,serif}
-.welcome{margin-top:28px;font-size:13px;opacity:.86}
-
+.logo{
+  width:116px;max-height:92px;object-fit:contain;filter:none;opacity:1;
+  margin:0 auto 20px;display:block
+}
+.hero h1{
+  margin:0 0 7px;font-size:clamp(36px,9vw,56px);letter-spacing:.09em;
+  color:#5c5247;font-family:"Noto Serif TC","Songti TC","PMingLiU",serif
+}
+.en{font-size:12px;letter-spacing:.24em;color:#8b8175}
+.hero-copy{
+  max-width:620px;margin:24px auto 0;line-height:1.95;font-size:14px;
+  white-space:pre-line;color:#756b60
+}
+.slogan{margin-top:18px;font:italic 15px Georgia,serif;color:#8a7762}
+.welcome{
+  width:min(100%,520px);margin:27px auto 0;padding-top:18px;
+  border-top:1px solid rgba(133,116,94,.20);
+  font-size:13px;line-height:1.7;color:#7d7469
+}
 .section-label{margin:30px 4px 10px;color:var(--muted);font-size:13px;letter-spacing:.08em;text-transform:uppercase}
 .mainmenu{display:grid;grid-template-columns:1fr;gap:11px}
 .mainmenu a{
   display:flex;align-items:center;justify-content:space-between;gap:15px;min-height:92px;padding:17px 18px;
-  border-radius:21px;background:var(--paper);border:1px solid var(--line);color:inherit;text-decoration:none;
-  box-shadow:0 8px 22px rgba(56,52,45,.055)
+  border-radius:21px;background:#fffdf9;border:1px solid #e8dfd3;color:inherit;text-decoration:none;
+  box-shadow:0 8px 22px rgba(95,78,59,.05)
 }
 .menu-left{display:flex;align-items:center;gap:14px}
-.menu-icon{display:grid;place-items:center;width:48px;height:48px;border-radius:16px;background:var(--soft);font-size:23px}
+.menu-icon{display:grid;place-items:center;width:48px;height:48px;border-radius:16px;background:#f1e9de;font-size:23px}
 .mainmenu strong{display:block;font-size:17px;margin-bottom:4px}
 .mainmenu small{color:var(--muted);line-height:1.45}
 .arrow{font-size:20px;color:#a4a89f}
 
 section.card{
-  margin:18px 0;padding:22px 19px;border-radius:24px;background:var(--paper);
-  border:1px solid var(--line);box-shadow:0 9px 25px rgba(56,52,45,.055);scroll-margin-top:16px
+  margin:18px 0;padding:22px 19px;border-radius:24px;background:#fffdf9;
+  border:1px solid #e8dfd3;box-shadow:0 9px 25px rgba(95,78,59,.05);scroll-margin-top:16px
 }
 .head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
 h2{margin:0;font-size:23px}
@@ -80,10 +107,10 @@ h2{margin:0;font-size:23px}
   flex:1;border:1px solid var(--line);background:#faf7f1;color:var(--text);
   padding:11px 14px;border-radius:14px;font-weight:800;font-size:13px;cursor:pointer
 }
-.play-tab.active{background:var(--green);color:#fff;border-color:var(--green)}
+.play-tab.active{background:#7d846f;color:#fff;border-color:#7d846f}
 .interactive-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:11px}
 .select-card{min-height:126px;padding:15px;border-radius:18px;background:#faf7f1;border:1px solid #ece4d9;text-align:left;cursor:pointer;color:inherit;position:relative;transition:.18s}
-.select-card.active{background:linear-gradient(145deg,#4f5f4b,#71806b);color:#fff;border-color:#4f5f4b;box-shadow:0 10px 22px rgba(79,95,75,.22)}
+.select-card.active{background:linear-gradient(145deg,#807a68,#96917e);color:#fff;border-color:#4f5f4b;box-shadow:0 10px 22px rgba(79,95,75,.22)}
 .select-card .emoji{font-size:26px}
 .select-card h3{margin:9px 0 5px;font-size:16px}
 .select-card p{margin:0;color:var(--muted);font-size:12px;line-height:1.55}
@@ -177,12 +204,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;line-height:1.8;margi
 <body>
 <main class="wrap">
 <header id="hero" class="hero">
-  <img
-  id="logo"
-  class="logo"
-  src="logo.png"
-  alt="蒔裳秝景 Logo"
->
+  <img id="logo" class="logo" src="logo.png" alt="蒔裳秝景 Logo">
   <h1 id="siteName">蒔裳秝景</h1>
   <div id="siteNameEn" class="en">CHANCE VILLA 262</div>
   <p id="intro" class="hero-copy"></p>
@@ -199,6 +221,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;line-height:1.8;margi
 <script>
 const SHEET_ID="1aKPLXPdEy3QpkIst5avg1Jd5ll-37NATR9cyQQHvpFs";
 const GUIDE_API_URL="https://script.google.com/macros/s/AKfycbzs3vRK4OtqVF8eG7htZgw8Z9w74fo-r9HnNXG6NGs0H-SQaoDrxPtlXWfECaUL2XTU5g/exec";
+const FALLBACK_LOGO=document.querySelector("#logo")?.getAttribute("src")||"";
 const SHEETS=["site","navigation","stay","play","devices","guest_tools","manual","assets"];
 const CACHE_VERSION="guide-api-first-20260724";
 const CACHE_TTL=30*60*1000;
@@ -259,10 +282,6 @@ function renderHero(cfg){
   intro.textContent=cfg.intro||"";
   slogan.textContent=cfg.slogan||"";
   welcome.textContent=cfg.welcome_text||"";
-  if(cfg.hero_image_url){
-    hero.classList.add("has-image");
-    hero.style.backgroundImage=`url("${cfg.hero_image_url}")`;
-  }
 }
 
 function renderStay(section,rows){
