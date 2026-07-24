@@ -157,6 +157,38 @@ h2{margin:0;font-size:23px}
 .device-content p:last-child{margin-bottom:0}
 .device-empty{padding:0;color:var(--muted);font-size:13px}
 
+
+.block-groups{margin-top:14px}
+.block-group{
+  border-top:1px solid #e8dfd3;
+}
+.block-group:first-child{border-top:0}
+.block-group details{padding:0}
+.block-group summary{
+  list-style:none;cursor:pointer;padding:14px 0;
+  display:flex;align-items:center;justify-content:space-between;
+  font-weight:800;color:#685d51
+}
+.block-group summary::-webkit-details-marker{display:none}
+.block-group summary:after{
+  content:"＋";font-size:19px;color:#9b8f80;transition:transform .18s
+}
+.block-group details[open] summary:after{transform:rotate(45deg)}
+.block-body{padding:0 0 15px}
+.block-list{margin:0;padding-left:20px;color:var(--muted);font-size:13px;line-height:1.8}
+.block-paragraph{margin:0;color:var(--muted);font-size:13px;line-height:1.8}
+.block-info-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-bottom:14px}
+.block-info{padding:12px;border-radius:14px;background:#fff;border:1px solid #e8dfd3}
+.block-info small{display:block;color:var(--muted);font-size:11px;margin-bottom:4px}
+.block-info strong{font-size:14px;color:#65594e}
+.block-faq{padding:12px 13px;border-radius:14px;background:#fff;border:1px solid #e8dfd3;margin-bottom:8px}
+.block-faq b{display:block;margin-bottom:5px;color:#665b50}
+.block-faq p{margin:0;color:var(--muted);font-size:13px;line-height:1.7}
+.block-media{width:100%;display:block;border-radius:14px;margin-top:8px;border:1px solid #e8dfd3}
+.block-link{
+  display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:10px 13px;
+  border-radius:12px;background:#847d6c;color:#fff;text-decoration:none;font-size:13px;font-weight:800
+}
 .checkout-alert{padding:18px;border-radius:20px;background:var(--warning-bg);border:1px solid #efd9ca}
 .alert-title{display:flex;align-items:center;gap:10px;color:var(--warning);font-weight:800;font-size:17px}
 .checkout-alert>p{margin:8px 0 0;color:#785949;font-size:13px;line-height:1.7}
@@ -222,8 +254,8 @@ footer{text-align:center;color:var(--muted);font-size:12px;line-height:1.8;margi
 const SHEET_ID="1aKPLXPdEy3QpkIst5avg1Jd5ll-37NATR9cyQQHvpFs";
 const GUIDE_API_URL="https://script.google.com/macros/s/AKfycbzs3vRK4OtqVF8eG7htZgw8Z9w74fo-r9HnNXG6NGs0H-SQaoDrxPtlXWfECaUL2XTU5g/exec";
 const FALLBACK_LOGO=document.querySelector("#logo")?.getAttribute("src")||"";
-const SHEETS=["site","navigation","stay","play","devices","guest_tools","manual","assets"];
-const CACHE_VERSION="guide-api-first-20260724";
+const SHEETS=["site","navigation","stay","play","devices","guest_tools","manual","content_blocks","assets"];
+const CACHE_VERSION="guide-v5-blocks-20260725";
 const CACHE_TTL=30*60*1000;
 
 function esc(v=""){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c]))}
@@ -311,6 +343,74 @@ function playSummaries(row){
   }
   return result;
 }
+
+function ownerBlocks(blockRows,ownerType,ownerId){
+  return visible(blockRows)
+    .filter(b=>String(b.owner_type)===String(ownerType)&&String(b.owner_id)===String(ownerId))
+    .sort((a,b)=>num(a.sort)-num(b.sort));
+}
+
+function renderBlockItems(rows){
+  const type=String(rows[0]?.block_type||"bullet");
+
+  if(type==="info"){
+    return `<div class="block-info-grid">${rows.map(r=>`
+      <div class="block-info"><small>${esc(r.title||"資訊")}</small><strong>${esc(r.content||r.extra||"")}</strong></div>
+    `).join("")}</div>`;
+  }
+
+  if(type==="faq"){
+    return rows.map(r=>`<div class="block-faq"><b>${esc(r.title||"常見問題")}</b><p>${esc(r.content||"")}</p></div>`).join("");
+  }
+
+  if(type==="alert"){
+    return rows.map(r=>`<div class="alert-box ${esc(r.style||"")}">${esc(r.content||r.title||"")}</div>`).join("");
+  }
+
+  if(type==="image"){
+    return rows.map(r=>r.media_url?`<img class="block-media" src="${esc(r.media_url)}" alt="${esc(r.title||"圖片")}" loading="lazy">`:"").join("");
+  }
+
+  if(type==="video"){
+    return rows.map(r=>r.media_url?`
+      <a class="block-link" href="${esc(r.media_url)}" target="_blank" rel="noopener">▶ ${esc(r.title||"觀看教學影片")}</a>
+    `:"").join("");
+  }
+
+  if(type==="link"){
+    return rows.map(r=>r.media_url?`
+      <a class="block-link" href="${esc(r.media_url)}" target="_blank" rel="noopener">${esc(r.title||"開啟連結")} ›</a>
+    `:"").join("");
+  }
+
+  if(type==="paragraph"){
+    return rows.map(r=>`<p class="block-paragraph">${esc(r.content||"")}</p>`).join("");
+  }
+
+  return `<ul class="block-list">${rows.map(r=>`<li>${r.title?`<strong>${esc(r.title)}</strong>${r.content?"：":""}`:""}${esc(r.content||"")}</li>`).join("")}</ul>`;
+}
+
+function renderFlexibleBlocks(blockRows,ownerType,ownerId,defaultOpenTitle=""){
+  const rows=ownerBlocks(blockRows,ownerType,ownerId);
+  if(!rows.length)return `<div class="device-empty">詳細內容後續補充。</div>`;
+
+  const grouped=group(rows,"section_title");
+  const infoRows=rows.filter(r=>r.block_type==="info");
+  const nonInfoGroups=Object.entries(grouped).filter(([title,list])=>!list.every(r=>r.block_type==="info"));
+
+  return `
+    ${infoRows.length?renderBlockItems(infoRows):""}
+    <div class="block-groups">
+      ${nonInfoGroups.map(([title,list])=>{
+        const open=bool(list[0]?.open_by_default)||String(title)===String(defaultOpenTitle);
+        return `<div class="block-group"><details ${open?"open":""}>
+          <summary>${esc(title||"詳細說明")}</summary>
+          <div class="block-body">${renderBlockItems(list)}</div>
+        </details></div>`;
+      }).join("")}
+    </div>`;
+}
+
 function renderPlaySection(section){
   return `<section id="${esc(section.section_id)}" class="card play-section">
     <div class="head"><h2>${esc(section.title)}</h2><span class="badge">${esc(section.subtitle||"")}</span></div>
@@ -322,7 +422,7 @@ function renderPlaySection(section){
     <div class="detail"></div>
   </section>`;
 }
-function bindPlay(sectionEl,rows){
+function bindPlay(sectionEl,rows,blockRows){
   const all=visible(rows).sort((a,b)=>num(a.sort)-num(b.sort));
   let category=all.some(x=>x.category==="facility")?"facility":"rental";
   let selected=all.find(x=>x.category===category)?.play_id||"";
@@ -338,8 +438,11 @@ function bindPlay(sectionEl,rows){
       <p>${esc(x.short_description||"")}</p>
       ${x.status_label?`<span class="status-pill">${esc(x.status_label)}</span>`:""}
     </button>`).join("");
+
     grid.querySelectorAll(".select-card").forEach(btn=>btn.addEventListener("click",()=>{
-      selected=btn.dataset.id;renderCards();renderDetail();
+      selected=btn.dataset.id;
+      renderCards();
+      renderDetail();
       detail.scrollIntoView({behavior:"smooth",block:"nearest"});
     }));
   }
@@ -347,17 +450,15 @@ function bindPlay(sectionEl,rows){
   function renderDetail(){
     const x=all.find(r=>String(r.play_id)===String(selected));
     if(!x){detail.innerHTML="";return}
-    const summaries=playSummaries(x);
-    const instructionLines=lines(x.instructions);
-    const ruleLines=lines(x.rules);
+
     detail.innerHTML=`<div class="detail-head">
-      <div class="detail-title"><span class="detail-icon">${esc(x.icon||"")}</span><div><h3>${esc(x.name)}</h3><div class="detail-sub">${esc(x.short_description||"")}</div></div></div>
+      <div class="detail-title">
+        <span class="detail-icon">${esc(x.icon||"")}</span>
+        <div><h3>${esc(x.name)}</h3><div class="detail-sub">${esc(x.short_description||"")}</div></div>
+      </div>
       ${x.status_label?`<span class="type-tag">${esc(x.status_label)}</span>`:""}
     </div>
-    ${summaries.length?`<div class="summary-grid">${summaries.map(s=>`<div class="summary-item"><small>${esc(s.label)}</small><strong>${esc(s.value)}</strong></div>`).join("")}</div>`:""}
-    ${instructionLines.length?`<div class="detail-section"><h4>${category==="rental"?"借用方式":"使用說明"}</h4><ul>${instructionLines.map(t=>`<li>${esc(t)}</li>`).join("")}</ul></div>`:""}
-    ${ruleLines.length?`<div class="detail-section"><h4>使用規範</h4><ul>${ruleLines.map(t=>`<li>${esc(t)}</li>`).join("")}</ul></div>`:""}
-    ${x.notice?`<div class="detail-section"><div class="alert-box ${esc(x.notice_style||"")}">${esc(x.notice)}</div></div>`:""}`;
+    ${renderFlexibleBlocks(blockRows,"play",x.play_id,x.default_open_block||"")}`;
   }
 
   sectionEl.querySelectorAll(".play-tab").forEach(tab=>tab.addEventListener("click",()=>{
@@ -365,21 +466,29 @@ function bindPlay(sectionEl,rows){
     tab.classList.add("active");
     category=tab.dataset.category;
     selected=all.find(x=>x.category===category)?.play_id||"";
-    renderCards();renderDetail();
+    renderCards();
+    renderDetail();
   }));
-  renderCards();renderDetail();
+
+  renderCards();
+  renderDetail();
 }
 
-function renderDevices(section,rows){
+function renderDevices(section,rows,blockRows){
   const items=visible(rows).sort((a,b)=>num(a.sort)-num(b.sort));
+
   return `<section id="${esc(section.section_id)}" class="card">
     <div class="head"><h2>${esc(section.title)}</h2><span class="badge">${esc(section.subtitle||"")}</span></div>
     <div class="device-list">
       ${items.map(x=>`<details>
-        <summary><span>${esc(x.icon||"")}</span><span class="device-name">${esc(x.name)}</span><span class="device-toggle">＋</span></summary>
+        <summary>
+          <span>${esc(x.icon||"")}</span>
+          <span class="device-name">${esc(x.name)}</span>
+          <span class="device-toggle">＋</span>
+        </summary>
         <div class="device-content">
-          ${x.image_url?`<img class="media" src="${esc(x.image_url)}" alt="${esc(x.name)}" loading="lazy">`:""}
-          ${lines(x.description).length?lines(x.description).map(t=>`<p>${esc(t)}</p>`).join(""):`<div class="device-empty">設備說明後續補充。</div>`}
+          ${x.short_description?`<p>${esc(x.short_description)}</p>`:""}
+          ${renderFlexibleBlocks(blockRows,"device",x.device_id,x.default_open_block||"")}
         </div>
       </details>`).join("")}
     </div>
@@ -579,7 +688,7 @@ function convertManual(sectionRows,itemRows){
 }
 
 
-const API_CACHE_KEY="chance-villa-guide-api-v1";
+const API_CACHE_KEY="chance-villa-guide-api-v2";
 const API_CACHE_TTL=30*60*1000;
 
 function readApiCache(){
@@ -627,6 +736,20 @@ async function loadFromApi(){
 function normalizeApiPayload(payload){
   const data=payload.data||{};
 
+  if(payload.schemaVersion==="v5"){
+    return {
+      siteRows:data.site||[],
+      navigationRows:data.navigation||[],
+      stayRows:data.stay||[],
+      playRows:data.play||[],
+      deviceRows:data.devices||[],
+      guestRows:data.guest_tools||[],
+      manualRows:data.manual||[],
+      blockRows:data.content_blocks||[],
+      assetRows:data.assets||[]
+    };
+  }
+
   if(payload.schemaVersion==="v4"){
     return {
       siteRows:data.site||[],
@@ -636,6 +759,7 @@ function normalizeApiPayload(payload){
       deviceRows:data.devices||[],
       guestRows:data.guest_tools||[],
       manualRows:data.manual||[],
+      blockRows:[],
       assetRows:data.assets||[]
     };
   }
@@ -648,14 +772,15 @@ function normalizeApiPayload(payload){
     deviceRows:convertDevices(data.device_cards||[],data.device_details||[]),
     guestRows:convertGuestTools(data.checkout||[],data.actions||[]),
     manualRows:convertManual(data.manual_sections||[],data.manual_items||[]),
+    blockRows:[],
     assetRows:data.assets||[]
   };
 }
 
-async function loadV4(){
-  const [siteRows,navigationRows,stayRows,playRows,deviceRows,guestRows,manualRows,assetRows]
+async function loadV5(){
+  const [siteRows,navigationRows,stayRows,playRows,deviceRows,guestRows,manualRows,blockRows,assetRows]
     =await Promise.all(SHEETS.map(loadSheet));
-  return {siteRows,navigationRows,stayRows,playRows,deviceRows,guestRows,manualRows,assetRows};
+  return {siteRows,navigationRows,stayRows,playRows,deviceRows,guestRows,manualRows,blockRows,assetRows};
 }
 
 async function loadLegacy(){
@@ -680,6 +805,7 @@ async function loadLegacy(){
     deviceRows:convertDevices(deviceCards,deviceDetails),
     guestRows:convertGuestTools(checkoutRows,actionRows),
     manualRows:convertManual(manualSections,manualItems),
+    blockRows:[],
     assetRows
   };
 }
@@ -695,14 +821,14 @@ async function init(){
       console.warn("Apps Script API 暫時無法使用，改讀 Google Sheet。",apiError);
 
       try{
-        data=await loadV4();
+        data=await loadV5();
       }catch(v4Error){
         console.warn("V4 後台尚未就緒，改讀舊版後台。",v4Error);
         data=await loadLegacy();
       }
     }
 
-    const {siteRows,navigationRows,stayRows,playRows,deviceRows,guestRows,manualRows}=data;
+    const {siteRows,navigationRows,stayRows,playRows,deviceRows,guestRows,manualRows,blockRows=[]}=data;
     const cfg=cfgMap(siteRows);
     renderHero(cfg);
 
@@ -724,7 +850,7 @@ async function init(){
     sections.forEach(s=>{
       if(s.section_id==="stay")pageHtml+=renderStay(s,stayRows);
       else if(s.section_id==="play")pageHtml+=renderPlaySection(s);
-      else if(s.section_id==="devices")pageHtml+=renderDevices(s,deviceRows);
+      else if(s.section_id==="devices")pageHtml+=renderDevices(s,deviceRows,blockRows);
       else if(s.section_id==="checkout")pageHtml+=renderCheckout(s,guestRows);
       else if(s.section_id==="contact")pageHtml+=renderContact(s,guestRows);
       else if(s.section_id==="manual")pageHtml+=renderManual(s,manualRows);
@@ -732,7 +858,7 @@ async function init(){
     content.innerHTML=pageHtml;
 
     const playEl=document.querySelector(".play-section");
-    if(playEl)bindPlay(playEl,playRows);
+    if(playEl)bindPlay(playEl,playRows,blockRows);
 
     footer.innerHTML=`${esc(cfg.site_name||"蒔裳秝景")} ${esc(cfg.site_name_en||"Chance Villa262")}<br>${esc(cfg.footer_text||"")}`;
   }catch(err){
