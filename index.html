@@ -235,6 +235,41 @@ h2{margin:0;font-size:23px}
   display:inline-flex;width:22px;justify-content:center;
   margin-right:7px;font-size:17px
 }
+
+.manual-category{
+  padding:14px 0;
+  border-top:1px solid #ddd3c7;
+}
+.manual-category:first-of-type{border-top:0}
+.manual-category > summary{
+  display:flex;
+  align-items:center;
+  min-height:28px;
+}
+.manual-category-body{
+  padding:8px 0 2px 29px;
+}
+.manual-category-body .block-groups{
+  margin-top:0;
+}
+.manual-category-body .block-group{
+  border-top:1px solid rgba(221,211,199,.72);
+}
+.manual-category-body .block-group:first-child{
+  border-top:0;
+}
+.manual-category-body .block-group details{
+  padding:0;
+  border-top:0;
+}
+.manual-category-body .block-group summary{
+  padding:9px 0;
+  font-size:14px;
+  font-weight:750;
+}
+.manual-category-body .block-body{
+  padding:0 0 10px;
+}
 .manual{margin-top:30px;padding:22px 18px;border-radius:25px;background:#f1ebe2;border:1px solid #dfd5c7}
 .manual-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:13px}
 .manual-head p{margin:5px 0 0;color:var(--muted);font-size:13px;line-height:1.6}
@@ -313,7 +348,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;line-height:1.8;margi
 const SHEET_ID="1aKPLXPdEy3QpkIst5avg1Jd5ll-37NATR9cyQQHvpFs";
 const FALLBACK_LOGO=document.querySelector("#logo")?.getAttribute("src")||"";
 const SHEETS=["site","navigation","stay","play","devices","guest_tools","manual","content_blocks","assets"];
-const CACHE_VERSION="guide-direct-sheet-v5";
+const CACHE_VERSION="guide-direct-sheet-v6-final";
 const CACHE_TTL=30*60*1000;
 
 function esc(v=""){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c]))}
@@ -446,9 +481,9 @@ function renderBlockItems(rows){
   return `<ul class="block-list">${rows.map(r=>`<li>${r.title?`<strong>${esc(r.title)}</strong>${r.content?"：":""}`:""}${esc(r.content||"")}</li>`).join("")}</ul>`;
 }
 
-function renderFlexibleBlocks(blockRows,ownerType,ownerId,defaultOpenTitle=""){
+function renderFlexibleBlocks(blockRows,ownerType,ownerId,defaultOpenTitle="",autoOpenFirst=false){
   const rows=ownerBlocks(blockRows,ownerType,ownerId);
-  if(!rows.length)return `<div class="device-empty">詳細內容後續補充。</div>`;
+  if(!rows.length)return `<div class="device-empty">目前尚未建立此分類的詳細內容。</div>`;
 
   const grouped=group(rows,"section_title");
   const infoRows=rows.filter(r=>r.block_type==="info");
@@ -457,8 +492,10 @@ function renderFlexibleBlocks(blockRows,ownerType,ownerId,defaultOpenTitle=""){
   return `
     ${infoRows.length?renderBlockItems(infoRows):""}
     <div class="block-groups">
-      ${nonInfoGroups.map(([title,list])=>{
-        const open=bool(list[0]?.open_by_default)||String(title)===String(defaultOpenTitle);
+      ${nonInfoGroups.map(([title,list],groupIndex)=>{
+        const open=bool(list[0]?.open_by_default)
+          ||String(title)===String(defaultOpenTitle)
+          ||(autoOpenFirst&&groupIndex===0);
         return `<div class="block-group"><details ${open?"open":""}>
           <summary>${esc(title||"詳細說明")}</summary>
           <div class="block-body">${renderBlockItems(list)}</div>
@@ -548,7 +585,7 @@ function renderDevices(section,rows,blockRows){
         </summary>
 
         <div class="device-content">
-          ${renderFlexibleBlocks(blockRows,"device",x.device_id,x.default_open_block||"")}
+          ${renderFlexibleBlocks(blockRows,"device",x.device_id,x.default_open_block||"",true)}
         </div>
       </details>`).join("")}
     </div>
@@ -588,10 +625,8 @@ function renderContact(section,rows){
   </section>`;
 }
 
-function renderManual(section,rows){
-  const items=visible(rows).sort((a,b)=>num(a.section_sort)-num(b.section_sort)||num(a.item_sort)-num(b.item_sort));
-  const grouped=group(items,"manual_id");
-  const sections=Object.values(grouped).map(rs=>rs[0]).sort((a,b)=>num(a.section_sort)-num(b.section_sort));
+function renderManual(section,manualRows,blockRows){
+  const categories=visible(manualRows).sort((a,b)=>num(a.sort)-num(b.sort));
 
   return `<section id="${esc(section.section_id)}" class="manual">
     <div class="manual-head">
@@ -599,38 +634,22 @@ function renderManual(section,rows){
         <h2>${esc(section.title)}</h2>
         <p>${esc(section.subtitle||"")}</p>
       </div>
-      <button class="manual-toggle-all" type="button" aria-expanded="false">展開全部</button>
+      ${categories.length?`<button class="manual-toggle-all" type="button" aria-expanded="false">展開全部</button>`:""}
     </div>
 
-    ${sections.map(s=>{
-      const rs=grouped[s.manual_id]||[];
-
-      if(s.layout==="price_list"){
-        return `<details>
-          <summary><span class="manual-section-icon">${esc(s.section_icon||"")}</span>${esc(s.section_title)}</summary>
-          <div class="price-list">
-            ${rs.map(r=>`<div class="price-item">
-              <b>${esc(r.item_title)}</b>
-              <small>${esc(r.content)}</small>
-              <strong>${esc(r.extra)}</strong>
-            </div>`).join("")}
+    ${categories.length
+      ? categories.map((category,index)=>`
+        <details class="manual-category" ${index===0?"open":""}>
+          <summary>
+            <span class="manual-section-icon">${esc(category.icon||"")}</span>
+            ${esc(category.title)}
+          </summary>
+          <div class="manual-category-body">
+            ${renderFlexibleBlocks(blockRows,"manual",category.manual_id,"",true)}
           </div>
-        </details>`;
-      }
-
-      const subgroups=group(rs,"group_title");
-
-      return `<details>
-        <summary><span class="manual-section-icon">${esc(s.section_icon||"")}</span>${esc(s.section_title)}</summary>
-        ${Object.entries(subgroups).map(([g,list])=>{
-          const showGroupTitle=g&&String(g).trim()!==String(s.section_title||"").trim();
-          return `<div>
-            ${showGroupTitle?`<p><strong>${esc(g)}</strong></p>`:""}
-            <ul>${list.map(r=>`<li><strong>${esc(r.item_title)}</strong>${r.content?`：${esc(r.content)}`:""}</li>`).join("")}</ul>
-          </div>`;
-        }).join("")}
-      </details>`;
-    }).join("")}
+        </details>
+      `).join("")
+      : `<div class="device-empty">目前尚未建立入住手冊分類。</div>`}
   </section>`;
 }
 
@@ -672,7 +691,7 @@ async function init(){
       else if(s.section_id==="devices")pageHtml+=renderDevices(s,deviceRows,blockRows);
       else if(s.section_id==="checkout")pageHtml+=renderCheckout(s,guestRows);
       else if(s.section_id==="contact")pageHtml+=renderContact(s,guestRows);
-      else if(s.section_id==="manual")pageHtml+=renderManual(s,manualRows);
+      else if(s.section_id==="manual")pageHtml+=renderManual(s,manualRows,blockRows);
     });
     content.innerHTML=pageHtml;
 
@@ -690,19 +709,21 @@ async function init(){
         toggleAll.setAttribute("aria-expanded",String(allOpen));
       };
 
-      toggleAll.addEventListener("click",()=>{
-        const shouldOpen=!manualDetails.every(d=>d.open);
-        manualDetails.forEach(d=>d.open=shouldOpen);
-        syncToggleLabel();
-      });
+      if(toggleAll){
+        toggleAll.addEventListener("click",()=>{
+          const shouldOpen=!manualDetails.every(d=>d.open);
+          manualDetails.forEach(d=>d.open=shouldOpen);
+          syncToggleLabel();
+        });
 
-      manualDetails.forEach(d=>d.addEventListener("toggle",syncToggleLabel));
-      syncToggleLabel();
+        manualDetails.forEach(d=>d.addEventListener("toggle",syncToggleLabel));
+        syncToggleLabel();
+      }
     }
 
     footer.innerHTML=`${esc(cfg.site_name||"蒔裳秝景")} ${esc(cfg.site_name_en||"Chance Villa262")}<br>${esc(cfg.footer_text||"")}`;
   }catch(err){
-    console.error("Google Sheet 資料載入失敗：",err);
+    console.error("Google Sheet V6 資料載入失敗：",err);
     renderHero({
       site_name:"蒔裳秝景",
       site_name_en:"Chance Villa262",
