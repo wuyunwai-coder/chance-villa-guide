@@ -671,22 +671,42 @@ function renderManual(section,manualRows,blockRows){
         <h2>${esc(section.title)}</h2>
         <p>${esc(section.subtitle||"")}</p>
       </div>
-      ${categories.length?`<button class="manual-toggle-all" type="button" aria-expanded="false">展開全部</button>`:""}
+
+      ${categories.length
+        ? `<button class="manual-toggle-all"
+            type="button"
+            aria-expanded="false">
+            展開全部
+          </button>`
+        : ""}
     </div>
 
     ${categories.length
-      ? categories.map((category,index)=>`
-        <details class="manual-category" ${index===0?"open":""}>
+      ? categories.map(category=>`
+        <details
+          class="manual-category"
+          ${bool(category.default_open) ? "open" : ""}
+        >
           <summary>
-            <span class="manual-section-icon">${esc(category.icon||"")}</span>
+            <span class="manual-section-icon">
+              ${esc(category.icon||"")}
+            </span>
             ${esc(category.title)}
           </summary>
+
           <div class="manual-category-body">
-            ${renderFlexibleBlocks(blockRows,"manual",category.manual_id,"",true)}
+            ${renderFlexibleBlocks(
+              blockRows,
+              "manual",
+              category.manual_id,
+              "",
+              true
+            )}
           </div>
         </details>
       `).join("")
-      : `<div class="device-empty">目前尚未建立入住手冊分類。</div>`}
+      : `<div class="empty-state">目前尚無入住手冊內容。</div>`
+    }
   </section>`;
 }
 
