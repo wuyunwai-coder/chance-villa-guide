@@ -151,38 +151,40 @@ h2{margin:0;font-size:23px}
 .device-toggle{color:var(--green2);font-size:20px;line-height:1;transition:transform .18s}
 .device-list details[open] .device-toggle{transform:rotate(45deg)}
 .device-content{
-  padding:0 16px 16px 44px;color:var(--muted);font-size:13px;line-height:1.75;background:#fffdf9
+  padding:0 16px 14px 44px;
+  color:var(--muted);
+  font-size:13px;
+  line-height:1.75;
+  background:#fffdf9
 }
 .device-content p{margin:0 0 8px}
 .device-content p:last-child{margin-bottom:0}
+
+.device-content .block-groups{
+  margin-top:0;
+}
+.device-content .block-group summary{
+  padding:7px 0;
+}
+.device-content .block-group:first-child summary{
+  padding-top:3px;
+}
+.device-content .block-body{
+  padding-bottom:12px;
+}
 .device-empty{padding:0;color:var(--muted);font-size:13px}
 
 
-.block-groups{
-  margin-top:4px;
-}
-
+.block-groups{margin-top:14px}
 .block-group{
   border-top:1px solid #e8dfd3;
 }
-
-.block-group:first-child{
-  border-top:0;
-}
-
-.block-group details{
-  padding:0;
-}
-
+.block-group:first-child{border-top:0}
+.block-group details{padding:0}
 .block-group summary{
-  list-style:none;
-  cursor:pointer;
-  padding:4px 0 8px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  font-weight:800;
-  color:#685d51;
+  list-style:none;cursor:pointer;padding:14px 0;
+  display:flex;align-items:center;justify-content:space-between;
+  font-weight:800;color:#685d51
 }
 .block-group summary::-webkit-details-marker{display:none}
 .block-group summary:after{
@@ -222,6 +224,17 @@ h2{margin:0;font-size:23px}
 .action{min-height:52px;padding:12px;border-radius:15px;background:#fff;color:var(--green);display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;font-weight:800;font-size:14px}
 .action.dark{background:rgba(255,255,255,.13);color:#fff;border:1px solid rgba(255,255,255,.24)}
 
+
+.manual-toggle-all{
+  border:1px solid #e7ded2;background:#f6f0e7;color:#7b7064;
+  border-radius:999px;padding:8px 12px;font-size:12px;line-height:1;
+  cursor:pointer;-webkit-tap-highlight-color:transparent
+}
+.manual-toggle-all:active{transform:scale(.97)}
+.manual-section-icon{
+  display:inline-flex;width:22px;justify-content:center;
+  margin-right:7px;font-size:17px
+}
 .manual{margin-top:30px;padding:22px 18px;border-radius:25px;background:#f1ebe2;border:1px solid #dfd5c7}
 .manual-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:13px}
 .manual-head p{margin:5px 0 0;color:var(--muted);font-size:13px;line-height:1.6}
@@ -521,7 +534,11 @@ function renderDevices(section,rows,blockRows){
   const items=visible(rows).sort((a,b)=>num(a.sort)-num(b.sort));
 
   return `<section id="${esc(section.section_id)}" class="card">
-    <div class="head"><h2>${esc(section.title)}</h2><span class="badge">${esc(section.subtitle||"")}</span></div>
+    <div class="head">
+      <h2>${esc(section.title)}</h2>
+      <span class="badge">${esc(section.subtitle||"")}</span>
+    </div>
+
     <div class="device-list">
       ${items.map(x=>`<details>
         <summary>
@@ -529,6 +546,7 @@ function renderDevices(section,rows,blockRows){
           <span class="device-name">${esc(x.name)}</span>
           <span class="device-toggle">＋</span>
         </summary>
+
         <div class="device-content">
           ${renderFlexibleBlocks(blockRows,"device",x.device_id,x.default_open_block||"")}
         </div>
@@ -574,168 +592,47 @@ function renderManual(section,rows){
   const items=visible(rows).sort((a,b)=>num(a.section_sort)-num(b.section_sort)||num(a.item_sort)-num(b.item_sort));
   const grouped=group(items,"manual_id");
   const sections=Object.values(grouped).map(rs=>rs[0]).sort((a,b)=>num(a.section_sort)-num(b.section_sort));
+
   return `<section id="${esc(section.section_id)}" class="manual">
-    <div class="manual-head"><div><h2>${esc(section.icon||"📖")} ${esc(section.title)}</h2><p>${esc(section.subtitle||"")}</p></div><span class="badge">完整內容</span></div>
+    <div class="manual-head">
+      <div>
+        <h2>${esc(section.title)}</h2>
+        <p>${esc(section.subtitle||"")}</p>
+      </div>
+      <button class="manual-toggle-all" type="button" aria-expanded="false">展開全部</button>
+    </div>
+
     ${sections.map(s=>{
       const rs=grouped[s.manual_id]||[];
+
       if(s.layout==="price_list"){
-        return `<details ${bool(s.default_open)?"open":""}><summary>${esc(s.section_icon||"")} ${esc(s.section_title)}</summary>
-          <div class="price-list">${rs.map(r=>`<div class="price-item"><b>${esc(r.item_title)}</b><small>${esc(r.content)}</small><strong>${esc(r.extra)}</strong></div>`).join("")}</div>
+        return `<details>
+          <summary><span class="manual-section-icon">${esc(s.section_icon||"")}</span>${esc(s.section_title)}</summary>
+          <div class="price-list">
+            ${rs.map(r=>`<div class="price-item">
+              <b>${esc(r.item_title)}</b>
+              <small>${esc(r.content)}</small>
+              <strong>${esc(r.extra)}</strong>
+            </div>`).join("")}
+          </div>
         </details>`;
       }
+
       const subgroups=group(rs,"group_title");
-      return `<details ${bool(s.default_open)?"open":""}><summary>${esc(s.section_icon||"")} ${esc(s.section_title)}</summary>
-        ${Object.entries(subgroups).map(([g,list])=>`<div><p><strong>${esc(g)}</strong></p><ul>${list.map(r=>`<li><strong>${esc(r.item_title)}</strong>${r.content?`：${esc(r.content)}`:""}</li>`).join("")}</ul></div>`).join("")}
+
+      return `<details>
+        <summary><span class="manual-section-icon">${esc(s.section_icon||"")}</span>${esc(s.section_title)}</summary>
+        ${Object.entries(subgroups).map(([g,list])=>{
+          const showGroupTitle=g&&String(g).trim()!==String(s.section_title||"").trim();
+          return `<div>
+            ${showGroupTitle?`<p><strong>${esc(g)}</strong></p>`:""}
+            <ul>${list.map(r=>`<li><strong>${esc(r.item_title)}</strong>${r.content?`：${esc(r.content)}`:""}</li>`).join("")}</ul>
+          </div>`;
+        }).join("")}
       </details>`;
     }).join("")}
   </section>`;
 }
-
-function mergeNavigation(menuRows, sectionRows){
-  const sectionsById=new Map(visible(sectionRows).map(s=>[String(s.section_id),s]));
-  const result=[];
-  visible(menuRows).forEach(m=>{
-    const s=sectionsById.get(String(m.target_section))||{};
-    result.push({
-      section_id:m.target_section||m.menu_id,
-      title:m.title||s.title,
-      icon:m.icon||s.icon,
-      description:m.description||"",
-      subtitle:s.subtitle||"",
-      layout:s.layout||"",
-      sort:m.sort||s.sort,
-      visible:m.visible,
-      show_in_menu:true,
-      show_in_manual:false,
-      notes:m.notes||s.notes||""
-    });
-  });
-  visible(sectionRows).forEach(s=>{
-    if(!result.some(r=>String(r.section_id)===String(s.section_id))){
-      result.push({
-        section_id:s.section_id,title:s.title,icon:s.icon,description:"",
-        subtitle:s.subtitle,layout:s.layout,sort:s.sort,visible:s.visible,
-        show_in_menu:false,show_in_manual:s.show_in_manual,notes:s.notes
-      });
-    }
-  });
-  return result;
-}
-
-function convertStay(stayCards,wifiRows){
-  return [
-    ...visible(stayCards).map(r=>({
-      item_id:r.card_id,type:"card",title:r.title,value:r.value,icon:r.icon,
-      badge:"",description:"",emphasis:r.emphasis,sort:r.sort,visible:r.visible,
-      ssid_rule:"",password:""
-    })),
-    ...visible(wifiRows).map(r=>({
-      item_id:r.wifi_id,type:"wifi",title:`${r.area||""} Wi‑Fi`,value:"",
-      icon:"📶",badge:r.badge,description:r.description,emphasis:"normal",
-      sort:r.sort,visible:r.visible,ssid_rule:r.ssid_rule,password:r.password
-    }))
-  ];
-}
-
-function convertPlay(cardRows,summaryRows,detailRows){
-  return visible(cardRows).map(card=>{
-    const summaries=visible(summaryRows)
-      .filter(s=>String(s.play_id)===String(card.play_id))
-      .sort((a,b)=>num(a.sort)-num(b.sort)).slice(0,4);
-    const details=visible(detailRows)
-      .filter(d=>String(d.play_id)===String(card.play_id))
-      .sort((a,b)=>num(a.sort)-num(b.sort));
-    const instructions=details
-      .filter(d=>["使用說明","租借方式"].includes(String(d.section_title)))
-      .map(d=>d.content).filter(Boolean).join("\n");
-    const rules=details
-      .filter(d=>!["使用說明","租借方式","特別提醒","待補資訊"].includes(String(d.section_title)))
-      .map(d=>d.content).filter(Boolean).join("\n");
-    const noticeRow=details.find(d=>d.alert_style&&d.alert_style!=="none");
-    const out={
-      play_id:card.play_id,category:card.category,name:card.name,icon:card.icon,
-      status_label:card.status_label,short_description:card.short_description,
-      instructions,rules,notice:noticeRow?.content||"",
-      notice_style:noticeRow?.alert_style||"none",
-      sort:card.sort,visible:card.visible,notes:card.notes||""
-    };
-    for(let i=1;i<=4;i++){
-      out[`summary${i}_label`]=summaries[i-1]?.label||"";
-      out[`summary${i}_value`]=summaries[i-1]?.value||"";
-    }
-    return out;
-  });
-}
-
-function convertDevices(cardRows,detailRows){
-  const details=visible(detailRows).sort((a,b)=>num(a.sort)-num(b.sort));
-  if(details.length){
-    return details.map((d,index)=>({
-      device_id:d.detail_id||`${d.device_id}-${index}`,
-      name:d.item_name||"設備",
-      icon:"",
-      description:d.content||"",
-      image_url:"",
-      sort:index+1,
-      visible:d.visible,
-      alert_style:d.alert_style||"none",
-      notes:d.notes||"",
-      content_type:d.content_type||"paragraph"
-    }));
-  }
-  return visible(cardRows).map(r=>({
-    device_id:r.device_id,name:r.name,icon:r.icon,
-    description:r.short_description||"",image_url:"",
-    sort:r.sort,visible:r.visible,alert_style:"none",
-    notes:r.notes||"",content_type:"paragraph"
-  }));
-}
-
-function convertGuestTools(checkoutRows,actionRows){
-  return [
-    ...visible(checkoutRows).map(r=>({
-      item_id:r.reminder_id,type:"checkout",title:r.title,content:r.content,
-      icon:r.icon,step_no:r.step_no,emphasis:r.emphasis,
-      action_type:"",value:"",open_mode:"",sort:r.sort,visible:r.visible,notes:r.notes
-    })),
-    ...visible(actionRows).map(r=>({
-      item_id:r.action_id,type:"action",title:r.title,content:"",
-      icon:r.icon,step_no:"",emphasis:"",action_type:r.action_type,
-      value:r.value,open_mode:r.open_mode,sort:r.sort,visible:r.visible,notes:r.notes
-    }))
-  ];
-}
-
-function convertManual(sectionRows,itemRows){
-  const sectionsById=new Map(visible(sectionRows).map(s=>[String(s.manual_id),s]));
-  return visible(itemRows).map(r=>{
-    const s=sectionsById.get(String(r.manual_id))||{};
-    return {
-      manual_id:r.manual_id,
-      section_title:s.title||r.manual_id,
-      section_icon:s.icon||"",
-      layout:s.layout||"accordion",
-      default_open:s.default_open,
-      group_title:r.group_title||"",
-      content_type:r.content_type||"bullet",
-      item_title:r.title||"",
-      content:r.content||"",
-      extra:r.extra||"",
-      section_sort:s.sort||999,
-      item_sort:r.sort||999,
-      visible:r.visible,
-      notes:r.notes||""
-    };
-  });
-}
-
-
-
-
-
-
-
-
 
 async function init(){
   try{
@@ -781,6 +678,27 @@ async function init(){
 
     const playEl=document.querySelector(".play-section");
     if(playEl)bindPlay(playEl,playRows,blockRows);
+
+    const manualEl=document.querySelector(".manual");
+    if(manualEl){
+      const toggleAll=manualEl.querySelector(".manual-toggle-all");
+      const manualDetails=[...manualEl.querySelectorAll(":scope > details")];
+
+      const syncToggleLabel=()=>{
+        const allOpen=manualDetails.length>0&&manualDetails.every(d=>d.open);
+        toggleAll.textContent=allOpen?"收合全部":"展開全部";
+        toggleAll.setAttribute("aria-expanded",String(allOpen));
+      };
+
+      toggleAll.addEventListener("click",()=>{
+        const shouldOpen=!manualDetails.every(d=>d.open);
+        manualDetails.forEach(d=>d.open=shouldOpen);
+        syncToggleLabel();
+      });
+
+      manualDetails.forEach(d=>d.addEventListener("toggle",syncToggleLabel));
+      syncToggleLabel();
+    }
 
     footer.innerHTML=`${esc(cfg.site_name||"蒔裳秝景")} ${esc(cfg.site_name_en||"Chance Villa262")}<br>${esc(cfg.footer_text||"")}`;
   }catch(err){
