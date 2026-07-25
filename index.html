@@ -92,6 +92,25 @@ h2{margin:0;font-size:23px}
 .stat.important{background:#fff3ea;border-color:#efd9ca}
 .stat.important strong{color:var(--warning)}
 
+/* stay.type = row：滿版資訊列，顯示在資訊卡與 Wi-Fi 之間 */
+.stay-rows{margin:16px 2px 14px}
+.stay-row{
+  display:flex;align-items:center;gap:13px;padding:15px 3px 16px;
+  border-top:1px solid #e9dfd2
+}
+.stay-row:last-child{border-bottom:1px solid #e9dfd2}
+.stay-row-icon{
+  width:42px;height:42px;flex:0 0 42px;display:grid;place-items:center;
+  border-radius:13px;background:#f1ece4;font-size:21px
+}
+.stay-row-body{flex:1;min-width:0}
+.stay-row-title{font-size:16px;font-weight:800;line-height:1.4}
+.stay-row-description{margin-top:3px;color:#7c695c;font-size:14px;line-height:1.6}
+.stay-row-badge{
+  flex:0 0 auto;padding:5px 9px;border-radius:999px;
+  background:#eee7dc;color:#92745f;font-size:11px;white-space:nowrap
+}
+
 .wifi-card{margin-top:16px;padding:17px;border-radius:19px;background:linear-gradient(135deg,#eef2eb,#f8f6f0);border:1px solid #dde5d9}
 .wifi-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
 .wifi-title strong{font-size:17px}
@@ -348,7 +367,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;line-height:1.8;margi
 const SHEET_ID="1aKPLXPdEy3QpkIst5avg1Jd5ll-37NATR9cyQQHvpFs";
 const FALLBACK_LOGO=document.querySelector("#logo")?.getAttribute("src")||"";
 const SHEETS=["site","navigation","stay","play","devices","guest_tools","manual","content_blocks","assets"];
-const CACHE_VERSION="guide-direct-sheet-v6-final-product";
+const CACHE_VERSION="guide-direct-sheet-v6-final-product-row-v1";
 const CACHE_TTL=30*60*1000;
 
 function esc(v=""){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c]))}
@@ -410,11 +429,29 @@ function renderHero(cfg){
 function renderStay(section,rows){
   const items=visible(rows).sort((a,b)=>num(a.sort)-num(b.sort));
   const cards=items.filter(r=>r.type==="card");
+  const rowItems=items.filter(r=>r.type==="row");
   const wifi=items.filter(r=>r.type==="wifi");
+
+  const rowsHtml=rowItems.length?`
+    <div class="stay-rows">
+      ${rowItems.map(r=>`
+        <div class="stay-row">
+          <div class="stay-row-icon">${esc(r.icon||"ℹ️")}</div>
+          <div class="stay-row-body">
+            <div class="stay-row-title">${esc(r.title||"")}</div>
+            ${(r.description||r.value)?`<div class="stay-row-description">${esc(r.description||r.value)}</div>`:""}
+          </div>
+          ${r.badge?`<span class="stay-row-badge">${esc(r.badge)}</span>`:""}
+        </div>
+      `).join("")}
+    </div>
+  `:"";
+
   return `<section id="${esc(section.section_id)}" class="card">
     <div class="head"><h2>${esc(section.title)}</h2><span class="badge">${esc(section.subtitle||"")}</span></div>
     <div class="notice">晚間 22:00 至翌日 08:00 請保持安靜；室內全面禁菸。</div>
     <div class="stats">${cards.map(s=>`<div class="stat ${esc(s.emphasis||"normal")}"><small>${esc(s.title)}</small><strong>${esc(s.value)}</strong></div>`).join("")}</div>
+    ${rowsHtml}
     ${wifi.map(w=>`<div class="wifi-card">
       <div class="wifi-title"><strong>${esc(w.icon||"📶")} ${esc(w.title)}</strong><span class="wifi-badge">${esc(w.badge||"Wi‑Fi")}</span></div>
       <div class="wifi-grid">
