@@ -225,6 +225,33 @@ h2{margin:0;font-size:23px}
   display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:10px 13px;
   border-radius:12px;background:#847d6c;color:#fff;text-decoration:none;font-size:13px;font-weight:800
 }
+
+/* content_blocks.block_type = table */
+.block-table-wrap{
+  width:100%;margin-top:8px;overflow-x:auto;-webkit-overflow-scrolling:touch;
+  border:1px solid #e8dfd3;border-radius:14px;background:#fff
+}
+.block-table{
+  width:100%;min-width:0;border-collapse:collapse;background:#fff
+}
+.block-table td{
+  padding:12px 13px;border-bottom:1px solid #eee6db;
+  color:var(--muted);font-size:13px;line-height:1.6;vertical-align:middle
+}
+.block-table tr:last-child td{border-bottom:0}
+.block-table td:first-child{font-weight:800;color:#65594e}
+.block-table.two-columns td:first-child{width:62%}
+.block-table.two-columns td:last-child,
+.block-table.three-columns td:last-child{
+  text-align:right;white-space:nowrap;font-weight:800;color:var(--green)
+}
+.block-table.three-columns td:first-child{width:42%}
+.block-table.three-columns td:nth-child(2){width:30%;text-align:center}
+@media(max-width:480px){
+  .block-table td{padding:11px 10px;font-size:12.5px}
+  .block-table.three-columns td:first-child{width:auto}
+  .block-table.three-columns td:nth-child(2){width:auto}
+}
 .checkout-alert{padding:18px;border-radius:20px;background:var(--warning-bg);border:1px solid #efd9ca}
 .alert-title{display:flex;align-items:center;gap:10px;color:var(--warning);font-weight:800;font-size:17px}
 .checkout-alert>p{margin:8px 0 0;color:#785949;font-size:13px;line-height:1.7}
@@ -367,7 +394,7 @@ footer{text-align:center;color:var(--muted);font-size:12px;line-height:1.8;margi
 const SHEET_ID="1aKPLXPdEy3QpkIst5avg1Jd5ll-37NATR9cyQQHvpFs";
 const FALLBACK_LOGO=document.querySelector("#logo")?.getAttribute("src")||"";
 const SHEETS=["site","navigation","stay","play","devices","guest_tools","manual","content_blocks","assets"];
-const CACHE_VERSION="guide-direct-sheet-v6-final-product-row-v1";
+const CACHE_VERSION="guide-direct-sheet-v7-table-v1";
 const CACHE_TTL=30*60*1000;
 
 function esc(v=""){return String(v??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#039;"}[c]))}
@@ -509,6 +536,23 @@ function renderBlockItems(rows){
     return rows.map(r=>r.media_url?`
       <a class="block-link" href="${esc(r.media_url)}" target="_blank" rel="noopener">${esc(r.title||"開啟連結")} ›</a>
     `:"").join("");
+  }
+
+  if(type==="table"){
+    const hasExtra=rows.some(r=>String(r.extra||"").trim());
+    const columnClass=hasExtra?"three-columns":"two-columns";
+
+    return `<div class="block-table-wrap">
+      <table class="block-table ${columnClass}">
+        <tbody>
+          ${rows.map(r=>`<tr>
+            <td>${esc(r.title||"")}</td>
+            <td>${esc(r.content||"")}</td>
+            ${hasExtra?`<td>${esc(r.extra||"")}</td>`:""}
+          </tr>`).join("")}
+        </tbody>
+      </table>
+    </div>`;
   }
 
   if(type==="paragraph"){
@@ -671,42 +715,22 @@ function renderManual(section,manualRows,blockRows){
         <h2>${esc(section.title)}</h2>
         <p>${esc(section.subtitle||"")}</p>
       </div>
-
-      ${categories.length
-        ? `<button class="manual-toggle-all"
-            type="button"
-            aria-expanded="false">
-            展開全部
-          </button>`
-        : ""}
+      ${categories.length?`<button class="manual-toggle-all" type="button" aria-expanded="false">展開全部</button>`:""}
     </div>
 
     ${categories.length
-      ? categories.map(category=>`
-        <details
-          class="manual-category"
-          ${bool(category.default_open) ? "open" : ""}
-        >
+      ? categories.map((category,index)=>`
+        <details class="manual-category" ${index===0?"open":""}>
           <summary>
-            <span class="manual-section-icon">
-              ${esc(category.icon||"")}
-            </span>
+            <span class="manual-section-icon">${esc(category.icon||"")}</span>
             ${esc(category.title)}
           </summary>
-
           <div class="manual-category-body">
-            ${renderFlexibleBlocks(
-              blockRows,
-              "manual",
-              category.manual_id,
-              "",
-              true
-            )}
+            ${renderFlexibleBlocks(blockRows,"manual",category.manual_id,"",true)}
           </div>
         </details>
       `).join("")
-      : `<div class="empty-state">目前尚無入住手冊內容。</div>`
-    }
+      : `<div class="device-empty">目前尚未建立入住手冊分類。</div>`}
   </section>`;
 }
 
